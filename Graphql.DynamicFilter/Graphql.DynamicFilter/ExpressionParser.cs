@@ -38,16 +38,28 @@ namespace Graphql.DynamicFiltering
                     var teste = Enum.Parse(underlyingType, value);
                 }
 
-                var newValue = underlyingType.IsEnum ? Convert.ChangeType(Enum.Parse(underlyingType, value), underlyingType) : Convert.ChangeType(value, underlyingType);
+                var newValue = ChangeType(value, underlyingType);
 
                 var nullableObject = Activator.CreateInstance(type, newValue);
-                
+
                 parsedValue = nullableObject;
             }
             else
-                parsedValue = Property.PropertyType.IsEnum ? Convert.ChangeType(Enum.Parse(Property.PropertyType, value), Property.PropertyType) : Convert.ChangeType(value, Property.PropertyType);
-
+            {
+                parsedValue = ChangeType(value, Property.PropertyType);
+            }
             return parsedValue;
+        }
+
+        private object ChangeType(string value, Type type)
+        {
+            if (type.IsEnum)
+                return Convert.ChangeType(Enum.Parse(type, value), type);
+
+            if (type == typeof(Guid))
+                return Guid.Parse(value);
+            
+            return Convert.ChangeType(value, type);
         }
 
         private string[] DefineOperation(string filterValues, Type itemType)
