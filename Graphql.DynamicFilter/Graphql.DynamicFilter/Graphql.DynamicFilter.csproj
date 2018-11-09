@@ -5,6 +5,9 @@
     <Description>Simple Binding that enables dynamic filtering on your webapi via url</Description>
     <Copyright>Bruno Gouvêa Roldão</Copyright>
     <PackageReleaseNotes>Initial Version</PackageReleaseNotes>
+    <Version>1.0.1</Version>
+    <Authors>Bruno Gouvêa Roldão</Authors>
+    <PackageProjectUrl>https://github.com/Brunogr/graphql-dynamic-filter-dotnetcore</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
