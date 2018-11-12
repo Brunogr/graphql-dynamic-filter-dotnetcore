@@ -42,63 +42,72 @@ namespace Graphql.DynamicFiltering
         {
             var page = bindingContext.ValueProvider.GetValue("page").FirstValue;
             var pageSize = bindingContext.ValueProvider.GetValue("pagesize").FirstValue;
-                        
-            model.GetType().GetProperty("Page").SetValue(model, int.Parse(page));
-            model.GetType().GetProperty("PageSize").SetValue(model, int.Parse(pageSize));
+            
+            if (!string.IsNullOrWhiteSpace(page))
+                model.GetType().GetProperty("Page").SetValue(model, int.Parse(page));
+
+            if (!string.IsNullOrWhiteSpace(pageSize))
+                model.GetType().GetProperty("PageSize").SetValue(model, int.Parse(pageSize));
         }
 
         private static void ExtractOrder(object model, ModelBindingContext bindingContext, ParameterExpression parameter)
         {
             var order = bindingContext.ValueProvider.GetValue("order").FirstValue;
 
-            if (order.Split('=').Count() > 1)
+            if (!string.IsNullOrWhiteSpace(order))
             {
-                model.GetType().GetProperty("OrderType").SetValue(model, Enum.Parse(typeof(OrderType), order.Split('=')[1]));
-                order = order.Split('=')[0];
+                if (order.Split('=').Count() > 1)
+                {
+                    model.GetType().GetProperty("OrderType").SetValue(model, Enum.Parse(typeof(OrderType), order.Split('=')[1], true));
+                    order = order.Split('=')[0];
+                }
+                else
+                    model.GetType().GetProperty("OrderType").SetValue(model, OrderType.Desc);
+
+                var property = Expression.PropertyOrField(parameter, order);
+
+                var orderExp = Expression.Lambda<Func<object, object>>(Expression.Convert(property, typeof(Object)).Reduce(), parameter);
+
+                model.GetType().GetProperty("Order").SetValue(model, orderExp);
             }
-            else
-                model.GetType().GetProperty("OrderType").SetValue(model, OrderType.Desc);
-
-            var constant = Expression.Property(parameter, order);
-
-            var orderExp = Expression.Lambda(Expression.Convert(constant, typeof(Object)).Reduce(), parameter);
-
-            model.GetType().GetProperty("Order").SetValue(model, orderExp);
         }
 
         private static void ExtractFilters(object model, ModelBindingContext bindingContext, ParameterExpression parameter, Type itemType)
         {
             var filter = bindingContext.ValueProvider.GetValue("filter").FirstValue;
 
-            var filterValues = filter.Split(',').ToArray();
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                var filterValues = filter.Split(',').ToArray();
 
-            LambdaExpression finalExpression = null;
-            Expression currentExpression = null;
-            var item = Activator.CreateInstance(itemType, true);
+                LambdaExpression finalExpression = null;
+                Expression currentExpression = null;
+                var item = Activator.CreateInstance(itemType, true);
 
-            for (int i = 0; i < filterValues.Count(); i++)
-            {                              
-                var expressionType = new ExpressionParser(filterValues[i], itemType);
-
-                item.GetType().GetProperty(expressionType.Property.Name).SetValue(item, expressionType.Value);
-
-                var expression = expressionType.GetExpression(parameter);
-
-                if (currentExpression == null)
+                for (int i = 0; i < filterValues.Count(); i++)
                 {
-                    currentExpression = expression;
+                    var expressionType = new ExpressionParser(filterValues[i], itemType);
+
+                    item.GetType().GetProperty(expressionType.Property.Name).SetValue(item, expressionType.Value);
+
+                    var expression = expressionType.GetExpression(parameter);
+
+                    if (currentExpression == null)
+                    {
+                        currentExpression = expression;
+                    }
+                    else
+                    {
+                        currentExpression = Expression.And(currentExpression, expression);
+                    }
                 }
-                else
-                {
-                    currentExpression = Expression.And(currentExpression, expression);
-                }
+
+                finalExpression = Expression.Lambda(currentExpression, parameter);
+
+                model.GetType().GetProperty("Filter").SetValue(model, finalExpression);
+
+                model.GetType().GetProperty("Item").SetValue(model, item);
             }
-
-            finalExpression = Expression.Lambda(currentExpression, parameter);
-
-            model.GetType().GetProperty("Filter").SetValue(model, finalExpression);
-
-            model.GetType().GetProperty("Item").SetValue(model, item);
         }
 
         public static object GetPropValue(object src, string propName)
