@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphql.DynamicFilter", "Graphql.DynamicFilter\Graphql.DynamicFilter.csproj", "{B686900B-010C-4F4F-83E6-2E70E281BF8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Graphql.DynamicFilter", "Graphql.DynamicFilter\Graphql.DynamicFilter.csproj", "{B686900B-010C-4F4F-83E6-2E70E281BF8C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E8095AAA-20B3-498A-927A-EB98E217DE1B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphql.DynamicFilter.WebApi.Test", "Graphql.DynamicFilter.WebApi.Test\Graphql.DynamicFilter.WebApi.Test.csproj", "{1E8E3190-C8D8-42D3-9DA0-650F0FD06DFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphql.DynamicFilter.Test.Unit", "Graphql.DynamicFilter.Test.Unit\Graphql.DynamicFilter.Test.Unit.csproj", "{E4C31AAE-6322-4183-B752-4E8388F257D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +21,21 @@ Global
 		{B686900B-010C-4F4F-83E6-2E70E281BF8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B686900B-010C-4F4F-83E6-2E70E281BF8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B686900B-010C-4F4F-83E6-2E70E281BF8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E8E3190-C8D8-42D3-9DA0-650F0FD06DFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E8E3190-C8D8-42D3-9DA0-650F0FD06DFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E8E3190-C8D8-42D3-9DA0-650F0FD06DFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E8E3190-C8D8-42D3-9DA0-650F0FD06DFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4C31AAE-6322-4183-B752-4E8388F257D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4C31AAE-6322-4183-B752-4E8388F257D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4C31AAE-6322-4183-B752-4E8388F257D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4C31AAE-6322-4183-B752-4E8388F257D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1E8E3190-C8D8-42D3-9DA0-650F0FD06DFB} = {E8095AAA-20B3-498A-927A-EB98E217DE1B}
+		{E4C31AAE-6322-4183-B752-4E8388F257D6} = {E8095AAA-20B3-498A-927A-EB98E217DE1B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {242D1DFD-26CA-4F1E-94E6-88813BDE62AD}

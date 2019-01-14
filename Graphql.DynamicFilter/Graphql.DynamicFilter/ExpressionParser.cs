@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Graphql.DynamicFilter.Exceptions;
+using System;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -74,8 +76,16 @@ namespace Graphql.DynamicFiltering
 
             if (filterValues.Contains('%'))
             {
-                values = filterValues.Split('%');
-                Condition = OperatorEnum.Contains;
+                if (filterValues.Contains("%%"))
+                {
+                    Condition = OperatorEnum.ContainsCaseSensitive;
+                    values = Regex.Split(filterValues, "%%");
+                }
+                else
+                {
+                    Condition = OperatorEnum.Contains;
+                    values = filterValues.Split('%');
+                }                
             }
 
             if (filterValues.Contains('>'))
@@ -111,7 +121,10 @@ namespace Graphql.DynamicFiltering
             if (values == null)
                 throw new ArgumentNullException("filter");
 
-            Property = itemType.GetProperty(values[0]);
+            Property = itemType.GetProperty(values[0], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance);
+
+            if (Property == null)
+                throw new PropertyNotFoundException(values[0], itemType.Name);
 
             return values;
         }
@@ -138,6 +151,20 @@ namespace Graphql.DynamicFiltering
                         return Expression.Equal(Expression.Property(parameter, Property), constantExpression);
                     }
                 case OperatorEnum.Contains:
+                    {
+                        constantExpression = Expression.Constant(Value.ToString().ToLower());
+
+                        var property = Expression.Property(parameter, Property);
+                        
+                        MethodInfo toLowerMethod = typeof(string).GetMethod("ToLowerInvariant");
+
+                        var expression1 = Expression.Call(property, toLowerMethod);
+                        
+                        MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                                                
+                        return Expression.Call(expression1, method, constantExpression);
+                    }
+                case OperatorEnum.ContainsCaseSensitive:
                     {
                         var property = Expression.Property(parameter, Property);
 
@@ -175,11 +202,12 @@ namespace Graphql.DynamicFiltering
     {
         Equals = 1,
         Contains = 2,
-        GreaterThan = 3,
-        LessThan = 4,
-        GreaterOrEqual = 5,
-        LessOrEqual = 6,
-        NotEquals = 7
+        ContainsCaseSensitive = 3,
+        GreaterThan = 4,
+        LessThan = 5,
+        GreaterOrEqual = 6,
+        LessOrEqual = 7,
+        NotEquals = 8
 
     }
 }

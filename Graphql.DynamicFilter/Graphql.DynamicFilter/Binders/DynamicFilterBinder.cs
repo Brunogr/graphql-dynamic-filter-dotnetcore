@@ -66,7 +66,7 @@ namespace Graphql.DynamicFiltering
 
                 var property = Expression.PropertyOrField(parameter, order);
 
-                var orderExp = Expression.Lambda<Func<object, object>>(Expression.Convert(property, typeof(Object)).Reduce(), parameter);
+                var orderExp = Expression.Lambda(Expression.Convert(property, typeof(Object)).Reduce(), parameter);
 
                 model.GetType().GetProperty("Order").SetValue(model, orderExp);
             }
@@ -75,6 +75,9 @@ namespace Graphql.DynamicFiltering
         private static void ExtractFilters(object model, ModelBindingContext bindingContext, ParameterExpression parameter, Type itemType)
         {
             var filter = bindingContext.ValueProvider.GetValue("filter").FirstValue;
+
+            if (filter == null)
+                filter = bindingContext.ValueProvider.GetValue("query").FirstValue;
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
@@ -88,7 +91,7 @@ namespace Graphql.DynamicFiltering
                 {
                     var expressionType = new ExpressionParser(filterValues[i], itemType);
 
-                    item.GetType().GetProperty(expressionType.Property.Name).SetValue(item, expressionType.Value);
+                    item.GetType().GetProperty(expressionType.Property.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance).SetValue(item, expressionType.Value);
 
                     var expression = expressionType.GetExpression(parameter);
 

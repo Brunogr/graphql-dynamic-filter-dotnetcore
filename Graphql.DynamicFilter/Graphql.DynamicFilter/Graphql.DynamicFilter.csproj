@@ -5,13 +5,13 @@
     <Description>Simple Binding that enables dynamic filtering on your webapi via url</Description>
     <Copyright>Bruno Gouvêa Roldão</Copyright>
     <PackageReleaseNotes>Initial Version</PackageReleaseNotes>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Bruno Gouvêa Roldão</Authors>
     <PackageProjectUrl>https://github.com/Brunogr/graphql-dynamic-filter-dotnetcore</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
   </ItemGroup>
 
 </Project>
