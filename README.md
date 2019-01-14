@@ -123,32 +123,48 @@ result = result.Skip(filter.Page).Take(filter.PageSize);
 
 - Equals (=)
 
+```http
 GET http://url?query=name=Bruno
+```
 
 - Contains (%)
 
+```http
 GET http://url?query=name%b
+```
 
 - Contains Case Sensitive (%%)
 
+```http
 GET http://url?query=name%%B
+```
 
 - GreaterThan (>)
 
+```http
 GET http://url?query=age>15
+```
 
 - GreaterOrEqual (>=)
 
+```http
 GET http://url?query=age>=15
+```
 
 - LessThan (<)
 
+```http
 GET http://url?query=age<15
+```
 
 - LessOrEqual (<=)
 
+```http
 GET http://url?query=age<=15
+```
 
 - NotEquals (!=)
 
+```http
 GET http://url?query=age!=15
+```
