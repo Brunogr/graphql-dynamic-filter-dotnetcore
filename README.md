@@ -1,5 +1,6 @@
 # graphql-dynamic-filter-dotnetcore
-Simple filter for .net WebApi that enables your webapi to filter your requests by url.
+Simple filter for .net WebApi that enables your endpoint to query your requests by url.
+
 It provides ways to query, order and page your webapi.
 
 Further features like select will be updated soon.
