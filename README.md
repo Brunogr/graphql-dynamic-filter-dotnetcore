@@ -12,7 +12,7 @@ First, download the package into your webapi project from nuget (https://www.nug
 nuget install Graphql.DynamicFilter
 ```
 
-After downloaded, go to your webapi and create an *get* endpoint receiving DynamicFilter<TClass> as parameter.
+After downloaded, go to your webapi and create an *get* endpoint receiving ``` DynamicFilter<TClass> ``` as parameter.
 
 ```C#
 [HttpGet]
