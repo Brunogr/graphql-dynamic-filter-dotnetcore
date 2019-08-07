@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -86,12 +87,23 @@ namespace Graphql.DynamicFiltering
                 LambdaExpression finalExpression = null;
                 Expression currentExpression = null;
                 var item = Activator.CreateInstance(itemType, true);
-
                 for (int i = 0; i < filterValues.Count(); i++)
                 {
                     var expressionType = new ExpressionParser(filterValues[i], itemType);
 
-                    item.GetType().GetProperty(expressionType.Property.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance).SetValue(item, expressionType.Value);
+                    var instance = item;
+
+                    foreach (var property in expressionType.Properties)
+                    {
+                        if (property.PropertyType.IsClass && property.PropertyType.Name.ToLower() != "string" && property.PropertyType.Name.ToLower() != "datetime")
+                        {
+                            var instanceClass = FormatterServices.GetUninitializedObject(property.PropertyType);
+                            instance.GetType().GetProperty(property.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance).SetValue(item, instanceClass); // Activator.CreateInstance(property.PropertyType, true));
+                            instance = instanceClass;
+                        }
+                        else
+                            instance.GetType().GetProperty(property.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance).SetValue(instance, expressionType.Value);
+                    }
 
                     var expression = expressionType.GetExpression(parameter);
 

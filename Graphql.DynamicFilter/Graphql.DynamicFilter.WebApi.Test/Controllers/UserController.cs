@@ -13,11 +13,11 @@ namespace Graphql.DynamicFilter.WebApi.Test.Controllers
     {
         List<User> users = new List<User>()
         {
-            new User("Bruno", 27),
-            new User("Fred", 33),
-            new User("Albert", 37),
-            new User("Lucao", 23),
-            new User("Luide", 28)
+            new User("Bruno", 27, new Address("street 1", 23)),
+            new User("Fred", 33, new Address("street 2", null)),
+            new User("Albert", 37, new Address("street 3", 43)),
+            new User("Lucao", 23, new Address("street 4", 53)),
+            new User("Luide", 28, new Address("street 5", 63))
         };
         // GET api/values
         [HttpGet]
@@ -44,14 +44,17 @@ namespace Graphql.DynamicFilter.WebApi.Test.Controllers
 
         }
 
-        public User(string name, int age)
+        public User(string name, int age, Address address)
         {
             Name = name;
             Age = age;
+            Address = address;
         }
 
         public string Name { get; set; }
         public int Age { get; set; }
+        public Address Address { get; set; }
+
         private DateTime _birthDate;
 
         public DateTime BirthDate
@@ -65,5 +68,17 @@ namespace Graphql.DynamicFilter.WebApi.Test.Controllers
                 _birthDate = value;
             }
         }
+    }
+
+    public class Address
+    {
+        public Address(string street, int? number)
+        {
+            Street = street;
+            Number = number;
+        }
+
+        public string Street { get; set; }
+        public int? Number { get; set; }
     }
 }

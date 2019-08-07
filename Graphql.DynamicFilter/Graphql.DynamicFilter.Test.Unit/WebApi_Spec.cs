@@ -57,6 +57,7 @@ namespace Graphql.DynamicFilter.Test.Unit
         [InlineData("name%b", 2)]
         [InlineData("name%%B", 1)]
         [InlineData("birthdate>=01/01/1991", 3)]
+        [InlineData("address.street%street", 5)]
         public async void Must_Match_Multiple_Users(string query, int count)
         {
             var binder = new DynamicFilterBinder();

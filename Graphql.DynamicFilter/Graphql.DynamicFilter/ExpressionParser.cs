@@ -1,5 +1,6 @@
 ﻿using Graphql.DynamicFilter.Exceptions;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,13 +13,15 @@ namespace Graphql.DynamicFiltering
     {
         public ExpressionParser(string filterValues, Type itemType)
         {
+            Properties = new List<PropertyInfo>();
+
             var values = DefineOperation(filterValues, itemType);
 
             Value = ParseValue(values[1]);
         }
 
         #region [ Properties ]
-        public PropertyInfo Property { get; set; }
+        public List<PropertyInfo> Properties { get; set; }
         public object Value { get; set; }
         public OperatorEnum Condition { get; set; }
 
@@ -29,27 +32,33 @@ namespace Graphql.DynamicFiltering
         {
             object parsedValue = null;
 
-            //Verifying if is nullable
-            if (Nullable.GetUnderlyingType(Property.PropertyType) != null)
+            foreach (var property in Properties)
             {
-                var underlyingType = Nullable.GetUnderlyingType(Property.PropertyType);
-                var type = typeof(Nullable<>).MakeGenericType(underlyingType);
-
-                if (underlyingType.IsEnum)
+                if (property.PropertyType.IsClass && property.PropertyType.Name.ToLower() != "string" && property.PropertyType.Name.ToLower() != "datetime")
+                    continue;
+                //Verifying if is nullable
+                if (Nullable.GetUnderlyingType(property.PropertyType) != null)
                 {
-                    var teste = Enum.Parse(underlyingType, value);
+                    var underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
+                    var type = typeof(Nullable<>).MakeGenericType(underlyingType);
+
+                    if (underlyingType.IsEnum)
+                    {
+                        var teste = Enum.Parse(underlyingType, value);
+                    }
+
+                    var newValue = ChangeType(value, underlyingType);
+
+                    var nullableObject = Activator.CreateInstance(type, newValue);
+
+                    parsedValue = nullableObject;
                 }
-
-                var newValue = ChangeType(value, underlyingType);
-
-                var nullableObject = Activator.CreateInstance(type, newValue);
-
-                parsedValue = nullableObject;
+                else
+                {
+                    parsedValue = ChangeType(value, property.PropertyType);
+                }
             }
-            else
-            {
-                parsedValue = ChangeType(value, Property.PropertyType);
-            }
+
             return parsedValue;
         }
 
@@ -121,12 +130,34 @@ namespace Graphql.DynamicFiltering
             if (values == null)
                 throw new ArgumentNullException("filter");
 
-            Property = itemType.GetProperty(values[0], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance);
+            var property = itemType.GetProperty(values[0], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance);
 
-            if (Property == null)
+            if (property != null)
+                Properties.Add(property);
+            else
+                Properties = GetNestedProp(values[0], itemType);
+
+            if (Properties == null || !Properties.Any())
                 throw new PropertyNotFoundException(values[0], itemType.Name);
 
             return values;
+        }
+
+        public List<PropertyInfo> GetNestedProp(String name, Type obj)
+        {
+            List<PropertyInfo> infos = new List<PropertyInfo>();
+            foreach (String part in name.Split('.'))
+            {
+                if (obj == null) { return null; }
+
+                //Type type = obj.GetType();
+                var info = obj.GetProperty(part, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance);
+                if (info == null) { return infos; }
+
+                obj = info.PropertyType;
+                infos.Add(info);
+            }
+            return infos;
         }
 
         #endregion
@@ -137,10 +168,16 @@ namespace Graphql.DynamicFiltering
             var constantExpression = Expression.Constant(Value);
 
             //making constant nullable
-            if (Nullable.GetUnderlyingType(Property.PropertyType) != null)
+            if (Nullable.GetUnderlyingType(Properties.LastOrDefault().PropertyType) != null)
             {
-                var type = typeof(Nullable<>).MakeGenericType(Nullable.GetUnderlyingType(Property.PropertyType));
+                var type = typeof(Nullable<>).MakeGenericType(Nullable.GetUnderlyingType(Properties.LastOrDefault().PropertyType));
                 constantExpression = Expression.Constant(Value, type);
+            }
+
+            Expression body = parameter;
+            foreach (var member in Properties)
+            {
+                body = Expression.Property(body, member);
             }
 
             switch (Condition)
@@ -148,17 +185,15 @@ namespace Graphql.DynamicFiltering
                 default:
                 case OperatorEnum.Equals:
                     {
-                        return Expression.Equal(Expression.Property(parameter, Property), constantExpression);
+                        return Expression.Equal(body, constantExpression);
                     }
                 case OperatorEnum.Contains:
                     {
                         constantExpression = Expression.Constant(Value.ToString().ToLower());
-
-                        var property = Expression.Property(parameter, Property);
-                        
+                                                
                         MethodInfo toLowerMethod = typeof(string).GetMethod("ToLowerInvariant");
 
-                        var expression1 = Expression.Call(property, toLowerMethod);
+                        var expression1 = Expression.Call(body, toLowerMethod);
                         
                         MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
                                                 
@@ -166,31 +201,31 @@ namespace Graphql.DynamicFiltering
                     }
                 case OperatorEnum.ContainsCaseSensitive:
                     {
-                        var property = Expression.Property(parameter, Property);
-
                         MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
-                        return Expression.Call(property, method, constantExpression);
+                        return Expression.Call(body, method, constantExpression);
                     }
                 case OperatorEnum.GreaterThan:
                     {
-                        return Expression.GreaterThan(Expression.Property(parameter, Property), constantExpression);
+
+
+                        return Expression.GreaterThan(body, constantExpression);
                     }
                 case OperatorEnum.LessThan:
                     {
-                        return Expression.LessThan(Expression.Property(parameter, Property), constantExpression);
+                        return Expression.LessThan(body, constantExpression);
                     }
                 case OperatorEnum.GreaterOrEqual:
                     {
-                        return Expression.GreaterThanOrEqual(Expression.Property(parameter, Property), constantExpression);
+                        return Expression.GreaterThanOrEqual(body, constantExpression);
                     }
                 case OperatorEnum.LessOrEqual:
                     {
-                        return Expression.LessThanOrEqual(Expression.Property(parameter, Property), constantExpression);
+                        return Expression.LessThanOrEqual(body, constantExpression);
                     }
                 case OperatorEnum.NotEquals:
                     {
-                        return Expression.NotEqual(Expression.Property(parameter, Property), constantExpression);
+                        return Expression.NotEqual(body, constantExpression);
                     }
             }
         }
