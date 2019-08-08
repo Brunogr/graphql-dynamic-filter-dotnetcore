@@ -107,8 +107,6 @@ namespace Graphql.DynamicFiltering
                 finalExpression = Expression.Lambda(currentExpression, parameter);
 
                 model.GetType().GetProperty("Filter").SetValue(model, finalExpression);
-
-                model.GetType().GetProperty("Item").SetValue(model, item);
             }
         }
 
