@@ -150,6 +150,10 @@ namespace Graphql.DynamicFiltering
             {
                 if (obj == null) { return null; }
 
+                if (obj.IsGenericType && obj.GetGenericTypeDefinition().GetInterfaces().Any(i => i.IsAssignableFrom(typeof(IEnumerable<>))))
+                {
+                    obj = obj.GetGenericArguments().FirstOrDefault();
+                }
                 //Type type = obj.GetType();
                 var info = obj.GetProperty(part, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance);
                 if (info == null) { return infos; }
@@ -162,10 +166,38 @@ namespace Graphql.DynamicFiltering
 
         #endregion
 
+        private object ChangeType(object value, Type type)
+        {
+            if (value == null && type.IsGenericType) return Activator.CreateInstance(type);
+            if (value == null) return null;
+            if (type == value.GetType()) return value;
+            if (type.IsEnum)
+            {
+                if (value is string)
+                    return Enum.Parse(type, value as string);
+                else
+                    return Enum.ToObject(type, value);
+            }
+            if (!type.IsInterface && type.IsGenericType)
+            {
+                Type innerType = type.GetGenericArguments()[0];
+                object innerValue = ChangeType(value, innerType);
+                return Activator.CreateInstance(type, new object[] { innerValue });
+            }
+            if (value is string && type == typeof(Guid)) return new Guid(value as string);
+            if (value is string && type == typeof(Version)) return new Version(value as string);
+            if (!(value is IConvertible)) return value;
+            return Convert.ChangeType(value, type);
+        }
+
         #region [ Public methods ]
         public Expression GetExpression(ParameterExpression parameter)
         {
             var constantExpression = Expression.Constant(Value);
+            Expression returnExpression;
+            ParameterExpression subParam = null;
+            Expression baseExp = null;
+            Type genericType = null;
 
             //making constant nullable
             if (Nullable.GetUnderlyingType(Properties.LastOrDefault().PropertyType) != null)
@@ -177,7 +209,30 @@ namespace Graphql.DynamicFiltering
             Expression body = parameter;
             foreach (var member in Properties)
             {
-                body = Expression.Property(body, member);
+                if (member.PropertyType.IsGenericType && member.PropertyType.GetGenericTypeDefinition().GetInterfaces().Any(i => i.IsAssignableFrom(typeof(IEnumerable<>))))
+                {
+                    genericType = member.PropertyType;
+                    baseExp = Expression.Property(body, member);
+                    body = Expression.Property(body, member);
+                    continue;
+                }
+                else
+                {
+                    if (genericType != null)
+                    {
+                        subParam = Expression.Parameter(genericType.GetGenericArguments().FirstOrDefault(), "y");
+                        body = Expression.Property(subParam, member);
+
+                        //body = expression1;
+
+                        //return body;
+
+                        //body = Expression.Call(anyMethod,
+                        //    Expression.Constant(listInstance, listType), Expression.Property(body, member));
+                    }
+                    else
+                        body = Expression.Property(body, member);
+                }
             }
 
             switch (Condition)
@@ -185,7 +240,8 @@ namespace Graphql.DynamicFiltering
                 default:
                 case OperatorEnum.Equals:
                     {
-                        return Expression.Equal(body, constantExpression);
+                        returnExpression = Expression.Equal(body, constantExpression);
+                        break;
                     }
                 case OperatorEnum.Contains:
                     {
@@ -196,38 +252,59 @@ namespace Graphql.DynamicFiltering
                         var expression1 = Expression.Call(body, toLowerMethod);
                         
                         MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-                                                
-                        return Expression.Call(expression1, method, constantExpression);
+
+                        returnExpression = Expression.Call(expression1, method, constantExpression);
+
+                        break;
                     }
                 case OperatorEnum.ContainsCaseSensitive:
                     {
                         MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
-                        return Expression.Call(body, method, constantExpression);
+                        returnExpression = Expression.Call(body, method, constantExpression);
+
+                        break;
                     }
                 case OperatorEnum.GreaterThan:
                     {
+                        returnExpression = Expression.GreaterThan(body, constantExpression);
 
-
-                        return Expression.GreaterThan(body, constantExpression);
+                        break;
                     }
                 case OperatorEnum.LessThan:
                     {
-                        return Expression.LessThan(body, constantExpression);
+                        returnExpression = Expression.LessThan(body, constantExpression);
+                        break;
                     }
                 case OperatorEnum.GreaterOrEqual:
                     {
-                        return Expression.GreaterThanOrEqual(body, constantExpression);
+                        returnExpression = Expression.GreaterThanOrEqual(body, constantExpression);
+                        break;
                     }
                 case OperatorEnum.LessOrEqual:
                     {
-                        return Expression.LessThanOrEqual(body, constantExpression);
+                        returnExpression = Expression.LessThanOrEqual(body, constantExpression);
+                        break;
                     }
                 case OperatorEnum.NotEquals:
                     {
-                        return Expression.NotEqual(body, constantExpression);
-                    }
+                        returnExpression = Expression.NotEqual(body, constantExpression);
+                        break;
+                    }                    
             }
+
+            if (genericType != null)
+            {
+                Type listType = typeof(List<>).MakeGenericType(new Type[] { genericType.GetGenericArguments().FirstOrDefault() });
+                var listInstance = Activator.CreateInstance(listType, true);
+
+                var anyMethod = typeof(Enumerable).GetMethods().Where(m => m.Name == "Any" && m.GetParameters().Count() == 2)
+                    .FirstOrDefault().MakeGenericMethod(genericType.GetGenericArguments().FirstOrDefault());
+
+                returnExpression = Expression.Call(anyMethod, baseExp, Expression.Lambda(returnExpression, subParam));
+            }
+
+            return returnExpression;
         }
         #endregion
 

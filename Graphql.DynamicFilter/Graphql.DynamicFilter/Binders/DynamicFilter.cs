@@ -11,7 +11,6 @@ namespace Graphql.DynamicFiltering
     public class DynamicFilter<T>
     {
         public Expression<Func<T, bool>> Filter { get; set; }
-        public T Item { get; set; }
         public Expression<Func<T, object>> Order { get; set; }
         public OrderType OrderType { get; set; }
         public int Page { get; set; }
