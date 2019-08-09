@@ -90,17 +90,41 @@ namespace Graphql.DynamicFiltering
 
                 for (int i = 0; i < filterAndValues.Count(); i++)
                 {
-                    var expressionType = new ExpressionParser(filterAndValues[i], itemType);
-
-                    var expression = expressionType.GetExpression(parameter);
-
-                    if (currentExpression == null)
+                    if (filterAndValues[i].Contains('|'))
                     {
-                        currentExpression = expression;
+                        var filterAndValue = filterAndValues[i].Split('=');
+                        var options = filterAndValue[1].Split('|');
+
+                        for (int j = 0; j < options.Count(); j++)
+                        {
+                            var expression = GetExpression(parameter, itemType, $"{filterAndValue[0]}={options[j]}");
+
+                            if (j == 0)
+                            {
+                                if (currentExpression == null)
+                                    currentExpression = expression;
+                                else
+                                    currentExpression = Expression.And(currentExpression, expression);
+                            }
+                            else
+                            {
+                                currentExpression = Expression.Or(currentExpression, expression);
+                            }
+
+                        }
                     }
                     else
                     {
-                        currentExpression = Expression.And(currentExpression, expression);
+                        Expression expression = GetExpression(parameter, itemType, filterAndValues[i]);
+
+                        if (currentExpression == null)
+                        {
+                            currentExpression = expression;
+                        }
+                        else
+                        {
+                            currentExpression = Expression.And(currentExpression, expression);
+                        }
                     }
                 }
 
@@ -108,6 +132,14 @@ namespace Graphql.DynamicFiltering
 
                 model.GetType().GetProperty("Filter").SetValue(model, finalExpression);
             }
+        }
+
+        private static Expression GetExpression(ParameterExpression parameter, Type itemType, string filterAndValue)
+        {
+            var expressionType = new ExpressionParser(filterAndValue, itemType);
+
+            var expression = expressionType.GetExpression(parameter);
+            return expression;
         }
 
         public static object GetPropValue(object src, string propName)
