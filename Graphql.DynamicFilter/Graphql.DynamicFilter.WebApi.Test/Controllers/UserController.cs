@@ -34,6 +34,10 @@ namespace Graphql.DynamicFilter.WebApi.Test.Controllers
                 Roles = new List<Role>() { new Role(6,"Read"), new Role(7,"Write") }
             }
         };
+        public const int INVALID_POST = 400;
+        public const int SUCCESSFULL_POST = 200;
+
+
         // GET api/values
         [HttpGet]
         public Task<List<User>> Get(DynamicFilter<User> filter)
@@ -54,6 +58,28 @@ namespace Graphql.DynamicFilter.WebApi.Test.Controllers
 
             return Task.FromResult(result.ToList());
         }
+
+        // Post api/user 
+        // Used Postman for testing.
+        [HttpPost]
+        public Task<int> Post(User user)
+        {
+            
+            int retval = INVALID_POST;
+            int oldTotalUsers = users.Count;
+            
+            if (users != null && !users.Contains(user)) {
+                users.Add(user);
+            }
+
+            if (oldTotalUsers < users.Count) {
+                retval = SUCCESSFULL_POST;
+            }
+
+            return Task.FromResult(retval);
+
+        }
+
     }
 
     public class User
