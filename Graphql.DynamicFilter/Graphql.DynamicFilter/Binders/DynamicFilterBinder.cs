@@ -17,7 +17,7 @@ namespace Graphql.DynamicFiltering
         {
         }
 
-        public async Task BindModelAsync(ModelBindingContext bindingContext)
+        public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             if (bindingContext == null)
             {
@@ -37,6 +37,8 @@ namespace Graphql.DynamicFiltering
             ExtractPagination(model, bindingContext);
 
             bindingContext.Result = ModelBindingResult.Success(model);
+
+            return Task.CompletedTask;
         }
 
         private static void ExtractPagination(object model, ModelBindingContext bindingContext)

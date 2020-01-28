@@ -1,6 +1,7 @@
 ﻿using Graphql.DynamicFilter.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -42,12 +43,14 @@ namespace Graphql.DynamicFiltering
                     var underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
                     var type = typeof(Nullable<>).MakeGenericType(underlyingType);
 
+                    Object newValue;
+
                     if (underlyingType.IsEnum)
                     {
-                        var teste = Enum.Parse(underlyingType, value);
+                        newValue = Enum.Parse(underlyingType, value);
                     }
 
-                    var newValue = ChangeType(value, underlyingType);
+                    newValue = ChangeType(value, underlyingType);
 
                     var nullableObject = Activator.CreateInstance(type, newValue);
 
@@ -69,8 +72,10 @@ namespace Graphql.DynamicFiltering
 
             if (type == typeof(Guid))
                 return Guid.Parse(value);
-            
-            return Convert.ChangeType(value, type);
+
+            var converter = TypeDescriptor.GetConverter(type);
+
+            return converter.ConvertFrom(value);
         }
 
         private string[] DefineOperation(string filterValues, Type itemType)

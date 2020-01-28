@@ -68,6 +68,7 @@ namespace Graphql.DynamicFilter.WebApi.Test.Controllers
             Name = name;
             Age = age;
             Address = address;
+            Date = DateTime.Now;
         }
 
         public string Name { get; set; }
@@ -76,6 +77,7 @@ namespace Graphql.DynamicFilter.WebApi.Test.Controllers
         public List<Role> Roles { get; set; }
 
         private DateTime _birthDate;
+        private DateTimeOffset Date { get; set; }
 
         public DateTime BirthDate
         {
