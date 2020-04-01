@@ -1,20 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>Simple Binding that enables dynamic filtering on your webapi via url</Description>
-    <Copyright>Bruno Gouvêa Roldão</Copyright>
-    <PackageReleaseNotes>Refactor</PackageReleaseNotes>
     <Version>1.0.9</Version>
     <Authors>Bruno Gouvêa Roldão</Authors>
+    <Description>Simple Binding that enables dynamic filtering on your webapi via url on NetFramework</Description>
+    <Copyright>Bruno Gouvêa Roldão</Copyright>
     <PackageProjectUrl>https://github.com/Brunogr/graphql-dynamic-filter-dotnetcore</PackageProjectUrl>
     <PackageTags>graphql, odata, orm, webapi, filter, dynamic</PackageTags>
-    <AssemblyVersion>1.0.9.0</AssemblyVersion>
-    <FileVersion>1.0.9.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.6" />
   </ItemGroup>
 
   <ItemGroup>

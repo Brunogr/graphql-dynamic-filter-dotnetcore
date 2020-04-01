@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Graphql.DynamicFilter.Exceptions
+namespace Graphql.DynamicFilter.Parser.Exceptions
 {
     [Serializable]
     public class PropertyNotFoundException : Exception

@@ -1,4 +1,4 @@
-﻿using Graphql.DynamicFilter.Exceptions;
+﻿using Graphql.DynamicFilter.Parser.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Graphql.DynamicFiltering
+namespace Graphql.Parser.DynamicFiltering
 {
     public class ExpressionParser
     {
@@ -19,6 +19,11 @@ namespace Graphql.DynamicFiltering
             var values = DefineOperation(filterValues, itemType);
 
             Value = ParseValue(values[1]);
+        }
+
+        public ExpressionParser()
+        {
+            Properties = new List<PropertyInfo>();
         }
 
         #region [ Properties ]
@@ -78,7 +83,32 @@ namespace Graphql.DynamicFiltering
             return converter.ConvertFrom(value);
         }
 
-        private string[] DefineOperation(string filterValues, Type itemType)
+        public string GetOperation()
+        {
+            switch (Condition)
+            {
+                case OperatorEnum.Equals:
+                    return "=";
+                case OperatorEnum.Contains:
+                    return "%";
+                case OperatorEnum.ContainsCaseSensitive:
+                    return "%%";
+                case OperatorEnum.GreaterThan:
+                    return ">";
+                case OperatorEnum.LessThan:
+                    return "<";
+                case OperatorEnum.GreaterOrEqual:
+                    return ">=";
+                case OperatorEnum.LessOrEqual:
+                    return "<=";
+                case OperatorEnum.NotEquals:
+                    return "!=";
+                default:
+                    return "=";
+            }
+        }
+
+        public string[] DefineOperation(string filterValues, Type itemType)
         {
             string[] values = null;
 

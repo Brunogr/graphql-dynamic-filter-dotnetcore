@@ -1,6 +1,5 @@
-﻿using Graphql.DynamicFiltering;
+﻿using Graphql.NetFramework.DynamicFiltering;
 using Graphql.Parser.DynamicFiltering;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +8,9 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
-namespace Graphql.DynamicFiltering
+namespace Graphql.NetFramework.DynamicFiltering
 {
     public class DynamicFilterBinder : IModelBinder
     {
@@ -37,15 +37,15 @@ namespace Graphql.DynamicFiltering
 
             ExtractPagination(model, bindingContext);
 
-            bindingContext.Result = ModelBindingResult.Success(model);
+            //bindingContext.Result = ModelBindingResult.Success(model);
 
             return Task.CompletedTask;
         }
 
         private static void ExtractPagination(object model, ModelBindingContext bindingContext)
         {
-            var page = bindingContext.ValueProvider.GetValue("page").FirstValue;
-            var pageSize = bindingContext.ValueProvider.GetValue("pagesize").FirstValue;
+            var page = bindingContext.ValueProvider.GetValue("page") != null ? bindingContext.ValueProvider.GetValue("page").AttemptedValue : null;
+            var pageSize = bindingContext.ValueProvider.GetValue("pagesize") != null ? bindingContext.ValueProvider.GetValue("pagesize").AttemptedValue : null;
             
             if (!string.IsNullOrWhiteSpace(page))
                 model.GetType().GetProperty("Page").SetValue(model, int.Parse(page));
@@ -56,7 +56,7 @@ namespace Graphql.DynamicFiltering
 
         private static void ExtractOrder(object model, ModelBindingContext bindingContext, ParameterExpression parameter)
         {
-            var order = bindingContext.ValueProvider.GetValue("order").FirstValue;
+            var order = bindingContext.ValueProvider.GetValue("order") != null ? bindingContext.ValueProvider.GetValue("order").AttemptedValue : null;
 
             if (!string.IsNullOrWhiteSpace(order))
             {
@@ -66,7 +66,7 @@ namespace Graphql.DynamicFiltering
                     order = order.Split('=')[0];
                 }
                 else
-                    model.GetType().GetProperty("OrderType").SetValue(model, OrderType.Desc);
+                    model.GetType().GetProperty("OrderType").SetValue(model, OrderType.Asc);
 
                 var property = Expression.PropertyOrField(parameter, order);
 
@@ -78,10 +78,10 @@ namespace Graphql.DynamicFiltering
 
         private static void ExtractFilters(object model, ModelBindingContext bindingContext, ParameterExpression parameter, Type itemType)
         {
-            var filter = bindingContext.ValueProvider.GetValue("filter").FirstValue;
+            var filter = bindingContext.ValueProvider.GetValue("filter") != null ? bindingContext.ValueProvider.GetValue("filter").AttemptedValue : null;
 
             if (filter == null)
-                filter = bindingContext.ValueProvider.GetValue("query").FirstValue;
+                filter = bindingContext.ValueProvider.GetValue("query") != null? bindingContext.ValueProvider.GetValue("query").AttemptedValue : null;
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
@@ -151,6 +151,29 @@ namespace Graphql.DynamicFiltering
             return src.GetType().GetProperty(propName).GetValue(src, null);
         }
 
+        public object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        {
+            if (bindingContext == null)
+            {
+                throw new ArgumentNullException(nameof(bindingContext));
+            }
+
+            var model = Activator.CreateInstance(bindingContext.ModelType);
+
+            var itemType = bindingContext.ModelType.GenericTypeArguments[0];
+
+            var parameter = Expression.Parameter(itemType, "x");
+
+            ExtractFilters(model, bindingContext, parameter, itemType);
+
+            ExtractOrder(model, bindingContext, parameter);
+
+            ExtractPagination(model, bindingContext);
+
+            //bindingContext.Result = ModelBindingResult.Success(model);
+
+            return model;
+        }
     }
 }
 

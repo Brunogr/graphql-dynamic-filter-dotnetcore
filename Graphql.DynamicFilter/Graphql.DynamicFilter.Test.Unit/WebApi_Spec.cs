@@ -1,4 +1,4 @@
-using Graphql.DynamicFilter.Exceptions;
+using Graphql.DynamicFilter.Parser.Exceptions;
 using Graphql.DynamicFilter.WebApi.Test.Controllers;
 using Graphql.DynamicFiltering;
 using Microsoft.AspNetCore.Http;
