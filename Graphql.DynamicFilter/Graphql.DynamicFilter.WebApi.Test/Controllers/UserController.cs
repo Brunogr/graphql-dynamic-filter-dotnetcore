@@ -38,19 +38,23 @@ namespace Graphql.DynamicFilter.WebApi.Test.Controllers
         [HttpGet]
         public Task<List<User>> Get(DynamicFilter<User> filter)
         {
-            IEnumerable<User> result;
+            IQueryable<User> result;
             if (filter.Filter != null)
-                result = users.Where(filter.Filter.Compile());
+                result = users.Where(filter.Filter.Compile()).AsQueryable();
             else
-                result = users;
+                result = users.AsQueryable();
+
+            if (filter.Select != null)
+                result = result.Select(filter.Select);
 
             if (filter.Order != null)
             {
                 if (filter.OrderType == OrderType.Asc)
-                    result = result.OrderBy(filter.Order.Compile());
+                    result = result.OrderBy(filter.Order.Compile()).AsQueryable();
                 else
-                    result = result.OrderByDescending(filter.Order.Compile());
+                    result = result.OrderByDescending(filter.Order.Compile()).AsQueryable();
             }
+
 
             return Task.FromResult(result.ToList());
         }
