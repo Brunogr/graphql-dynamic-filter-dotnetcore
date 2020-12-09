@@ -10,7 +10,7 @@
     <Description>Simple Binding that enables dynamic filtering on your webapi via url on NetFramework</Description>
     <PackageProjectUrl>https://github.com/Brunogr/graphql-dynamic-filter-dotnetcore</PackageProjectUrl>
     <PackageTags>graphql, odata, orm, webapi, filter, dynamic</PackageTags>
-    <Version>1.0.10</Version>
+    <Version>1.0.11</Version>
   </PropertyGroup>
 
 </Project>

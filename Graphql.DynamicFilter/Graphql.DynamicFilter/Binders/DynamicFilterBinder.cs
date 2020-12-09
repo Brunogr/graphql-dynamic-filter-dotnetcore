@@ -64,6 +64,7 @@ namespace Graphql.DynamicFiltering
 
             if (!string.IsNullOrWhiteSpace(select))
             {
+                model.GetType().GetProperty("SelectText").SetValue(model, select);
                 var selectFields = select.Split(',');
 
                 // new statement "new Data()"
