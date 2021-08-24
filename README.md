@@ -7,7 +7,7 @@ Further features like select will be updated soon.
 
 # Get Started
 
-First, download the package into your webapi project from nuget (https://www.nuget.org/packages/Graphql.DynamicFilter/1.0.3)
+First, download the package into your webapi project from nuget (https://www.nuget.org/packages/Graphql.DynamicFilter)
 ```batch
 nuget install Graphql.DynamicFilter
 ```
