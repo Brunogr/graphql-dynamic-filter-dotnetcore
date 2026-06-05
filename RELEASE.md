@@ -5,8 +5,8 @@ Follow these steps when publishing **DynamicQuery.AspNetCore 2.0.0**.
 ## One-time setup
 
 1. Rename the GitHub repository to `dynamic-query-aspnetcore` in **Settings → General → Repository name**.
-2. Add GitHub repository secrets:
-   - `NUGET_API_KEY` — NuGet.org API key with push scope
+2. Add GitHub repository secrets (**Settings → Secrets and variables → Actions → New repository secret**):
+   - `NUGET_API_KEY` — required for release. Create at [nuget.org/account/apikeys](https://www.nuget.org/account/apikeys) with **Push** scope for `DynamicQuery.AspNetCore` and `DynamicQuery.NetFramework` (or a glob like `*` for your account).
    - `CODECOV_TOKEN` — optional, improves Codecov upload reliability for the coverage badge
 3. Sign in to [Codecov](https://codecov.io/) with GitHub and enable the repository (required for the README coverage badge).
 
@@ -23,6 +23,8 @@ git push origin v2.0.0
 
 4. The **Release** workflow publishes `DynamicQuery.AspNetCore` and `DynamicQuery.NetFramework` to NuGet.
 5. Create a GitHub Release from tag `v2.0.0` and paste the `2.0.0` section from `CHANGELOG.md`.
+
+If a release workflow failed because `NUGET_API_KEY` was missing, add the secret and **Re-run all jobs** on the failed workflow run in the Actions tab (no need to create a new tag).
 
 ## Deprecate legacy packages
 
