@@ -5,8 +5,8 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>DynamicQuery.Test.Unit</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Include>[DynamicQuery.Parser]*,[DynamicQuery.AspNetCore]*</Include>
-    <Exclude>[DynamicQuery.AspNetCore.Test]*,[DynamicQuery.Test.Unit]*</Exclude>
+    <Include>[DynamicQuery.Parser]*,[DynamicQuery.AspNetCore]</Include>
+    <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
   </PropertyGroup>
 
   <ItemGroup>

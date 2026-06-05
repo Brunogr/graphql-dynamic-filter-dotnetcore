@@ -1,0 +1,12 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 90%
+  ignore:
+    - "tests/**"
+
+comment:
+  layout: "reach,diff,flags,tree,reach"
+  behavior: default
+  require_changes: false
