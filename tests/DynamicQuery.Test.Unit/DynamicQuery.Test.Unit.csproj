@@ -5,7 +5,13 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>DynamicQuery.Test.Unit</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Include>[DynamicQuery.Parser]*,[DynamicQuery.AspNetCore]*</Include>
+    <Exclude>[DynamicQuery.AspNetCore.Test]*,[DynamicQuery.Test.Unit]*</Exclude>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4">
