@@ -8,6 +8,19 @@ OData-inspired URL query binding for ASP.NET Core. Parses query string parameter
 
 This library is **not GraphQL**. It binds REST query parameters such as `?query=name=Bruno&order=name&page=0&pagesize=10` to strongly typed expressions you can use with `IQueryable`, EF Core, or in-memory collections.
 
+## Renamed from Graphql.DynamicFilter
+
+This project was originally published as **[Graphql.DynamicFilter](https://www.nuget.org/packages/Graphql.DynamicFilter)** on NuGet (~41k downloads). The old name was misleading — the library provides OData-style URL query binding, not GraphQL.
+
+Starting with **2.0**, development continues under new package IDs:
+
+| Legacy package (1.x) | New package (2.x) |
+|----------------------|-------------------|
+| [Graphql.DynamicFilter](https://www.nuget.org/packages/Graphql.DynamicFilter) | [DynamicQuery.AspNetCore](https://www.nuget.org/packages/DynamicQuery.AspNetCore) |
+| [Graphql.DynamicFilter.NetFramework](https://www.nuget.org/packages/Graphql.DynamicFilter.NetFramework) | [DynamicQuery.NetFramework](https://www.nuget.org/packages/DynamicQuery.NetFramework) |
+
+The **query string format is unchanged**. Only the package name, namespaces, and type names changed (`DynamicFilter<T>` → `DynamicQuery<T>`).
+
 ## Packages
 
 | Package | Description |
@@ -121,11 +134,22 @@ builder.Services.AddControllers()
 
 ## Migration from Graphql.DynamicFilter 1.x
 
-See [CHANGELOG.md](CHANGELOG.md). Summary:
+If you installed the old package:
 
-- `Graphql.DynamicFilter` → `DynamicQuery.AspNetCore`
+```bash
+# Remove the legacy package
+dotnet remove package Graphql.DynamicFilter
+
+# Install the renamed package
+dotnet add package DynamicQuery.AspNetCore
+```
+
+Update your code:
+
+- `using Graphql.DynamicFiltering` → `using DynamicQuery.AspNetCore`
 - `DynamicFilter<T>` → `DynamicQuery<T>`
-- Query string format is unchanged
+
+Full details: [CHANGELOG.md](https://github.com/Brunogr/dynamic-query-aspnetcore/blob/master/CHANGELOG.md)
 
 ## Development
 
@@ -136,4 +160,4 @@ dotnet test DynamicQuery.sln
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](https://github.com/Brunogr/dynamic-query-aspnetcore/blob/master/LICENSE).

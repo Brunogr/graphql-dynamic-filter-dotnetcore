@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-06-05
+
+### Added
+
+- Package README on NuGet.org for `DynamicQuery.AspNetCore` and `DynamicQuery.NetFramework`
+
+### Changed
+
+- README documents rename from [Graphql.DynamicFilter](https://www.nuget.org/packages/Graphql.DynamicFilter)
+
 ## [2.0.0] - 2026-06-05
 
 ### Added
