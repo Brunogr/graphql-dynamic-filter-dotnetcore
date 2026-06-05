@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <Version>2.0.0</Version>
+    <Authors>Bruno Gouvêa Roldão</Authors>
+    <Copyright>Bruno Gouvêa Roldão</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Brunogr/dynamic-query-aspnetcore</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Brunogr/dynamic-query-aspnetcore</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+</Project>

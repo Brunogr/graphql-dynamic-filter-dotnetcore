@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <RootNamespace>DynamicQuery.AspNetCore</RootNamespace>
+    <AssemblyName>DynamicQuery.AspNetCore</AssemblyName>
+    <PackageId>DynamicQuery.AspNetCore</PackageId>
+    <Description>OData-inspired URL query binding for ASP.NET Core. Parses query strings into LINQ expression trees for filtering, sorting, paging, and projection.</Description>
+    <PackageTags>aspnetcore;odata;filter;linq;querystring;webapi;dynamic</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DynamicQuery.Parser\DynamicQuery.Parser.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

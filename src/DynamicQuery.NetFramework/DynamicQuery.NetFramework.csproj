@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>DynamicQuery.NetFramework</RootNamespace>
+    <AssemblyName>DynamicQuery.NetFramework</AssemblyName>
+    <PackageId>DynamicQuery.NetFramework</PackageId>
+    <Description>OData-inspired URL query binding for ASP.NET MVC 5 on .NET Framework. Parses query strings into LINQ expression trees.</Description>
+    <PackageTags>aspnet;aspnetmvc;odata;filter;linq;querystring;webapi;dynamic</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>true</IsPackable>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DynamicQuery.Parser\DynamicQuery.Parser.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>
